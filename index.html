@@ -101,14 +101,14 @@
     <button class="cel-close" onclick="closeCelebration()">LET'S GO</button>
 </div>
 <div class="page active" id="page-today">
-    <div class="header"><div class="header-top"><div class="logo">TIO</div><div class="streak-badge">🔥 <span class="streak-num" id="streakNum">0</span><span class="streak-label">day streak</span></div></div></div>
+    <div class="header"><div class="header-top"><div class="logo">TIO<span style="display:block;font-size:10px;font-weight:400;letter-spacing:3px;color:var(--text2);margin-top:2px">by reeser</span></div><div class="streak-badge">🔥 <span class="streak-num" id="streakNum">0</span><span class="streak-label">day streak</span></div></div></div>
     <div class="rank-section"><div class="rank-label">Rank</div><div class="rank-name" id="rankName">🪖 Recruit</div><div class="rank-bar-wrap"><div class="rank-bar-fill" id="rankFill" style="width:0%"></div></div><div class="rank-next" id="rankNext">5 workouts to Private</div></div>
     <div class="day-header"><div class="day-type-label" id="dayTypeLabel">TODAY</div><div class="day-name" id="dayName">—</div></div>
     <div id="todayContent"></div>
 </div>
-<div class="page" id="page-history"><div class="page-header"><div class="logo">TIO</div><div class="page-title">History</div></div><div class="history-list" id="historyList"></div></div>
+<div class="page" id="page-history"><div class="page-header"><div class="logo">TIO<span style="display:block;font-size:10px;font-weight:400;letter-spacing:3px;color:var(--text2);margin-top:2px">by reeser</span></div><div class="page-title">History</div></div><div class="history-list" id="historyList"></div></div>
 <div class="page" id="page-goals">
-    <div class="page-header"><div class="logo">TIO</div><div class="page-title">Goals</div></div>
+    <div class="page-header"><div class="logo">TIO<span style="display:block;font-size:10px;font-weight:400;letter-spacing:3px;color:var(--text2);margin-top:2px">by reeser</span></div><div class="page-title">Goals</div></div>
     <div class="stats-grid">
         <div class="stat-card"><div class="stat-value" id="totalWk">0</div><div class="stat-label">Total Workouts</div></div>
         <div class="stat-card"><div class="stat-value" id="bestStr">0</div><div class="stat-label">Best Streak</div></div>
@@ -117,7 +117,7 @@
     </div>
     <div class="goals-section"><div class="goal-card"><div class="goal-card-header"><div><div class="goal-month" id="goalMonthLabel">APRIL GOAL</div><div class="goal-title">Monthly Workouts</div></div><div class="goal-count" id="goalCountDisplay">0/20</div></div><div class="goal-sub" id="goalSub">Set your target for this month</div><div class="progress-bar"><div class="progress-fill" id="goalFill" style="width:0%"></div></div><div class="goal-input-row"><input class="goal-input" type="number" id="goalInput" placeholder="20" min="1" max="31"><button class="goal-set-btn" onclick="setGoal()">Set Goal</button></div></div></div>
 </div>
-<div class="page" id="page-rank"><div class="page-header"><div class="logo">TIO</div><div class="page-title">Ranks</div></div><div class="rank-list" id="rankList"></div></div>
+<div class="page" id="page-rank"><div class="page-header"><div class="logo">TIO<span style="display:block;font-size:10px;font-weight:400;letter-spacing:3px;color:var(--text2);margin-top:2px">by reeser</span></div><div class="page-title">Ranks</div></div><div class="rank-list" id="rankList"></div></div>
 <div class="bottom-nav">
     <div class="nav-item active" id="nav-today" onclick="showPage('today')"><span class="nav-icon">💪</span><span>Today</span></div>
     <div class="nav-item" id="nav-history" onclick="showPage('history')"><span class="nav-icon">📋</span><span>History</span></div>
@@ -125,7 +125,7 @@
     <div class="nav-item" id="nav-rank" onclick="showPage('rank')"><span class="nav-icon">🏅</span><span>Rank</span></div>
 </div>
 <script>
-const RANKS=[{name:'Recruit',min:0,max:5,icon:'🪖'},{name:'Private',min:5,max:15,icon:'⭐'},{name:'Specialist',min:15,max:30,icon:'⭐⭐'},{name:'Corporal',min:30,max:50,icon:'🎖️'},{name:'Sergeant',min:50,max:75,icon:'🎖️🎖️'},{name:'Staff Sergeant',min:75,max:110,icon:'🏅'},{name:'Sergeant 1st Class',min:110,max:160,icon:'🏅🏅'},{name:'Master Sergeant',min:160,max:225,icon:'🥇'},{name:'Sergeant Major',min:225,max:9999,icon:'👑'}];
+const RANKS=[{name:'Iron',min:0,max:10,icon:'🔩'},{name:'Bronze',min:10,max:25,icon:'🥉'},{name:'Silver',min:25,max:50,icon:'🥈'},{name:'Gold',min:50,max:80,icon:'🥇'},{name:'Platinum',min:80,max:120,icon:'🔷'},{name:'Emerald',min:120,max:170,icon:'💚'},{name:'Diamond',min:170,max:230,icon:'💎'},{name:'Master',min:230,max:300,icon:'👑'},{name:'Grandmaster',min:300,max:9999,icon:'⚡'}];
 const SCHEDULE={0:'legs',1:'push',2:'pull',3:'legs',4:'rest',5:'push',6:'pull'};
 const WORKOUTS={push:{label:'PUSH DAY',displayName:'Push',color:'push',exercises:[{name:'Bench Press',detail:'4 × 8 reps',eq:'Olympic Bar'},{name:'Incline DB Press',detail:'3 × 10 reps',eq:'Dumbbells'},{name:'HS Shoulder Press',detail:'3 × 10 reps',eq:'Hammer Strength'},{name:'Cable Lateral Raises',detail:'4 × 15 reps',eq:'Cable'},{name:'Cable Flyes',detail:'3 × 12 reps',eq:'Cable'},{name:'Tricep Pushdown',detail:'3 × 12 reps',eq:'Cable'},{name:'Overhead Tricep Extension',detail:'3 × 12 reps',eq:'Cable'}]},pull:{label:'PULL DAY',displayName:'Pull',color:'pull',exercises:[{name:'Deadlift',detail:'4 × 5 reps',eq:'Olympic Platform'},{name:'Pull-Ups',detail:'4 × 8 reps',eq:'Pull-up Bar'},{name:'HS Bent-Over Row',detail:'3 × 10 reps',eq:'Hammer Strength'},{name:'Seated Cable Row',detail:'3 × 12 reps',eq:'Cable'},{name:'Face Pulls',detail:'3 × 15 reps',eq:'Cable'},{name:'Hammer Curls',detail:'3 × 12 reps',eq:'Dumbbells'},{name:'Cable Curls',detail:'3 × 12 reps',eq:'Cable'}]},legs:{label:'LEGS DAY',displayName:'Legs',color:'legs',exercises:[{name:'Back Squat',detail:'4 × 8 reps',eq:'Olympic Bar'},{name:'Leg Press',detail:'4 × 10 reps',eq:'Life Fitness'},{name:'Romanian Deadlift',detail:'3 × 10 reps',eq:'Olympic Bar'},{name:'Leg Extensions',detail:'3 × 15 reps',eq:'Life Fitness'},{name:'Leg Curls',detail:'3 × 15 reps',eq:'Life Fitness'},{name:'Standing Calf Raises',detail:'4 × 20 reps',eq:'Machine'}]}};
 const ABS=[{name:'Cable Crunches',detail:'3 × 20 reps',eq:'Cable'},{name:'Hanging Leg Raises',detail:'3 × 15 reps',eq:'Pull-up Bar'},{name:'Ab Wheel Rollouts',detail:'3 × 10 reps',eq:'Ab Wheel'},{name:'Plank Hold',detail:'3 × 60 sec',eq:'Bodyweight'}];
