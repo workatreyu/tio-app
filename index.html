@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TIO">
+    <meta name="theme-color" content="#0f0f0f">
+    <title>TIO</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        :root { --bg: #0f0f0f; --surface: #1a1a1a; --surface2: #242424; --accent: #e8ff00; --text: #ffffff; --text2: #888888; --border: #2a2a2a; }
+        body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; max-width: 430px; margin: 0 auto; padding-bottom: 90px; }
+        .header { padding: 56px 20px 16px; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 26px; font-weight: 900; letter-spacing: 6px; color: var(--accent); }
+        .streak-badge { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 14px; font-weight: 700; }
+        .streak-num { color: var(--accent); }
+        .streak-label { color: var(--text2); font-weight: 400; }
+        .rank-section { background: var(--surface); margin: 12px 20px 16px; border-radius: 16px; padding: 16px; border: 1px solid var(--border); }
+        .rank-label { font-size: 11px; color: var(--text2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .rank-name { font-size: 18px; font-weight: 800; color: var(--accent); margin-bottom: 10px; }
+        .rank-bar-wrap { background: var(--surface2); border-radius: 4px; height: 5px; overflow: hidden; }
+        .rank-bar-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.5s ease; }
+        .rank-next { font-size: 12px; color: var(--text2); margin-top: 6px; }
+        .day-header { margin: 0 20px 14px; }
+        .day-type-label { font-size: 11px; color: var(--text2); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 2px; }
+        .day-name { font-size: 30px; font-weight: 900; }
+        .day-name.push { color: #ff6b35; } .day-name.pull { color: #4ecdc4; } .day-name.legs { color: #a55af4; } .day-name.rest { color: var(--text2); }
+        .section-title { font-size: 11px; color: var(--text2); letter-spacing: 2px; text-transform: uppercase; padding: 0 20px; margin-bottom: 10px; }
+        .exercise-list { padding: 0 20px; display: flex; flex-direction: column; gap: 9px; }
+        .exercise-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: border-color 0.2s, background 0.2s; -webkit-user-select: none; user-select: none; }
+        .exercise-item.done { border-color: var(--accent); background: rgba(232,255,0,0.04); }
+        .exercise-item.done .exercise-name { color: var(--text2); text-decoration: line-through; }
+        .checkbox { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s; }
+        .exercise-item.done .checkbox { background: var(--accent); border-color: var(--accent); }
+        .checkmark { display: none; color: #000; font-size: 13px; font-weight: 900; }
+        .exercise-item.done .checkmark { display: block; }
+        .exercise-info { flex: 1; min-width: 0; }
+        .exercise-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+        .exercise-detail { font-size: 12px; color: var(--text2); }
+        .exercise-eq { font-size: 11px; color: var(--text2); opacity: 0.55; }
+        .log-btn { margin: 16px 20px 0; background: var(--accent); color: #000; border: none; border-radius: 14px; padding: 17px; width: calc(100% - 40px); font-size: 15px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+        .log-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .log-btn:not(:disabled):active { transform: scale(0.98); }
+        .rest-card { margin: 0 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 40px 20px; text-align: center; }
+        .rest-emoji { font-size: 48px; margin-bottom: 14px; }
+        .rest-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+        .rest-sub { font-size: 14px; color: var(--text2); line-height: 1.6; }
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--surface); border-top: 1px solid var(--border); display: flex; padding: 10px 0 28px; z-index: 50; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px; color: var(--text2); font-size: 11px; transition: color 0.2s; -webkit-user-select: none; user-select: none; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 22px; }
+        .page { display: none; } .page.active { display: block; }
+        .page-header { padding: 56px 20px 16px; }
+        .page-title { font-size: 26px; font-weight: 900; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px; margin-bottom: 16px; }
+        .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; text-align: center; }
+        .stat-value { font-size: 28px; font-weight: 900; color: var(--accent); }
+        .stat-label { font-size: 11px; color: var(--text2); margin-top: 4px; }
+        .goals-section { padding: 0 20px; }
+        .goal-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+        .goal-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .goal-month { font-size: 11px; color: var(--text2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 2px; }
+        .goal-title { font-size: 16px; font-weight: 700; }
+        .goal-count { font-size: 26px; font-weight: 900; color: var(--accent); }
+        .goal-sub { font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+        .progress-bar { background: var(--surface2); border-radius: 4px; height: 7px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width 0.5s ease; }
+        .goal-input-row { display: flex; align-items: center; gap: 10px; margin-top: 14px; }
+        .goal-input { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 16px; padding: 10px 14px; width: 80px; text-align: center; }
+        .goal-input:focus { outline: none; border-color: var(--accent); }
+        .goal-set-btn { background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .history-list { padding: 0 20px; display: flex; flex-direction: column; gap: 9px; }
+        .history-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+        .history-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .history-dot.push { background: #ff6b35; } .history-dot.pull { background: #4ecdc4; } .history-dot.legs { background: #a55af4; }
+        .history-info { flex: 1; } .history-type { font-size: 15px; font-weight: 700; } .history-date { font-size: 12px; color: var(--text2); } .history-done { font-size: 14px; font-weight: 700; color: var(--accent); }
+        .rank-list { padding: 0 20px; display: flex; flex-direction: column; gap: 9px; }
+        .rank-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; opacity: 0.35; }
+        .rank-item.achieved { opacity: 1; } .rank-item.current { opacity: 1; border-color: var(--accent); background: rgba(232,255,0,0.04); }
+        .rank-icon { font-size: 26px; } .rank-info { flex: 1; } .rank-item-name { font-size: 15px; font-weight: 700; } .rank-req { font-size: 12px; color: var(--text2); } .rank-status { font-size: 11px; font-weight: 700; color: var(--accent); }
+        .celebration { position: fixed; inset: 0; background: rgba(0,0,0,0.88); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 200; padding: 20px; }
+        .celebration.show { display: flex; }
+        .cel-emoji { font-size: 72px; margin-bottom: 20px; animation: pulse 0.6s ease infinite alternate; }
+        @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.08); } }
+        .cel-title { font-size: 28px; font-weight: 900; color: var(--accent); text-align: center; margin-bottom: 8px; }
+        .cel-sub { font-size: 15px; color: var(--text2); text-align: center; margin-bottom: 30px; }
+        .cel-close { background: var(--accent); color: #000; border: none; border-radius: 14px; padding: 16px 48px; font-size: 16px; font-weight: 800; letter-spacing: 2px; cursor: pointer; }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text2); }
+        .empty-state .empty-icon { font-size: 40px; margin-bottom: 14px; }
+    </style>
+</head>
+<body>
+<div class="celebration" id="celebration">
+    <div class="cel-emoji">🔥</div>
+    <div class="cel-title" id="celTitle">WORKOUT COMPLETE</div>
+    <div class="cel-sub" id="celSub">Streak alive!</div>
+    <button class="cel-close" onclick="closeCelebration()">LET'S GO</button>
+</div>
+<div class="page active" id="page-today">
+    <div class="header"><div class="header-top"><div class="logo">TIO</div><div class="streak-badge">🔥 <span class="streak-num" id="streakNum">0</span><span class="streak-label">day streak</span></div></div></div>
+    <div class="rank-section"><div class="rank-label">Rank</div><div class="rank-name" id="rankName">🪖 Recruit</div><div class="rank-bar-wrap"><div class="rank-bar-fill" id="rankFill" style="width:0%"></div></div><div class="rank-next" id="rankNext">5 workouts to Private</div></div>
+    <div class="day-header"><div class="day-type-label" id="dayTypeLabel">TODAY</div><div class="day-name" id="dayName">—</div></div>
+    <div id="todayContent"></div>
+</div>
+<div class="page" id="page-history"><div class="page-header"><div class="logo">TIO</div><div class="page-title">History</div></div><div class="history-list" id="historyList"></div></div>
+<div class="page" id="page-goals">
+    <div class="page-header"><div class="logo">TIO</div><div class="page-title">Goals</div></div>
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-value" id="totalWk">0</div><div class="stat-label">Total Workouts</div></div>
+        <div class="stat-card"><div class="stat-value" id="bestStr">0</div><div class="stat-label">Best Streak</div></div>
+        <div class="stat-card"><div class="stat-value" id="monthWk">0</div><div class="stat-label">This Month</div></div>
+        <div class="stat-card"><div class="stat-value" id="pushWk">0</div><div class="stat-label">Push Days</div></div>
+    </div>
+    <div class="goals-section"><div class="goal-card"><div class="goal-card-header"><div><div class="goal-month" id="goalMonthLabel">APRIL GOAL</div><div class="goal-title">Monthly Workouts</div></div><div class="goal-count" id="goalCountDisplay">0/20</div></div><div class="goal-sub" id="goalSub">Set your target for this month</div><div class="progress-bar"><div class="progress-fill" id="goalFill" style="width:0%"></div></div><div class="goal-input-row"><input class="goal-input" type="number" id="goalInput" placeholder="20" min="1" max="31"><button class="goal-set-btn" onclick="setGoal()">Set Goal</button></div></div></div>
+</div>
+<div class="page" id="page-rank"><div class="page-header"><div class="logo">TIO</div><div class="page-title">Ranks</div></div><div class="rank-list" id="rankList"></div></div>
+<div class="bottom-nav">
+    <div class="nav-item active" id="nav-today" onclick="showPage('today')"><span class="nav-icon">💪</span><span>Today</span></div>
+    <div class="nav-item" id="nav-history" onclick="showPage('history')"><span class="nav-icon">📋</span><span>History</span></div>
+    <div class="nav-item" id="nav-goals" onclick="showPage('goals')"><span class="nav-icon">🎯</span><span>Goals</span></div>
+    <div class="nav-item" id="nav-rank" onclick="showPage('rank')"><span class="nav-icon">🏅</span><span>Rank</span></div>
+</div>
+<script>
+const RANKS=[{name:'Recruit',min:0,max:5,icon:'🪖'},{name:'Private',min:5,max:15,icon:'⭐'},{name:'Specialist',min:15,max:30,icon:'⭐⭐'},{name:'Corporal',min:30,max:50,icon:'🎖️'},{name:'Sergeant',min:50,max:75,icon:'🎖️🎖️'},{name:'Staff Sergeant',min:75,max:110,icon:'🏅'},{name:'Sergeant 1st Class',min:110,max:160,icon:'🏅🏅'},{name:'Master Sergeant',min:160,max:225,icon:'🥇'},{name:'Sergeant Major',min:225,max:9999,icon:'👑'}];
+const SCHEDULE={0:'legs',1:'push',2:'pull',3:'legs',4:'rest',5:'push',6:'pull'};
+const WORKOUTS={push:{label:'PUSH DAY',displayName:'Push',color:'push',exercises:[{name:'Bench Press',detail:'4 × 8 reps',eq:'Olympic Bar'},{name:'Incline DB Press',detail:'3 × 10 reps',eq:'Dumbbells'},{name:'HS Shoulder Press',detail:'3 × 10 reps',eq:'Hammer Strength'},{name:'Cable Lateral Raises',detail:'4 × 15 reps',eq:'Cable'},{name:'Cable Flyes',detail:'3 × 12 reps',eq:'Cable'},{name:'Tricep Pushdown',detail:'3 × 12 reps',eq:'Cable'},{name:'Overhead Tricep Extension',detail:'3 × 12 reps',eq:'Cable'}]},pull:{label:'PULL DAY',displayName:'Pull',color:'pull',exercises:[{name:'Deadlift',detail:'4 × 5 reps',eq:'Olympic Platform'},{name:'Pull-Ups',detail:'4 × 8 reps',eq:'Pull-up Bar'},{name:'HS Bent-Over Row',detail:'3 × 10 reps',eq:'Hammer Strength'},{name:'Seated Cable Row',detail:'3 × 12 reps',eq:'Cable'},{name:'Face Pulls',detail:'3 × 15 reps',eq:'Cable'},{name:'Hammer Curls',detail:'3 × 12 reps',eq:'Dumbbells'},{name:'Cable Curls',detail:'3 × 12 reps',eq:'Cable'}]},legs:{label:'LEGS DAY',displayName:'Legs',color:'legs',exercises:[{name:'Back Squat',detail:'4 × 8 reps',eq:'Olympic Bar'},{name:'Leg Press',detail:'4 × 10 reps',eq:'Life Fitness'},{name:'Romanian Deadlift',detail:'3 × 10 reps',eq:'Olympic Bar'},{name:'Leg Extensions',detail:'3 × 15 reps',eq:'Life Fitness'},{name:'Leg Curls',detail:'3 × 15 reps',eq:'Life Fitness'},{name:'Standing Calf Raises',detail:'4 × 20 reps',eq:'Machine'}]}};
+const ABS=[{name:'Cable Crunches',detail:'3 × 20 reps',eq:'Cable'},{name:'Hanging Leg Raises',detail:'3 × 15 reps',eq:'Pull-up Bar'},{name:'Ab Wheel Rollouts',detail:'3 × 10 reps',eq:'Ab Wheel'},{name:'Plank Hold',detail:'3 × 60 sec',eq:'Bodyweight'}];
+function getState(){const d={streak:0,bestStreak:0,totalWorkouts:0,lastWorkoutDate:null,history:[],monthlyGoal:20,checkedExercises:{},completedDates:[],pushCount:0,pullCount:0,legsCount:0};try{const s=localStorage.getItem('tio_v2');return s?{...d,...JSON.parse(s)}:d;}catch(e){return d;}}
+function saveState(s){localStorage.setItem('tio_v2',JSON.stringify(s));}
+function todayKey(){return new Date().toISOString().split('T')[0];}
+function dayType(){return SCHEDULE[new Date().getDay()];}
+function rankIdx(n){for(let i=RANKS.length-1;i>=0;i--)if(n>=RANKS[i].min)return i;return 0;}
+function absFor(n){return ABS[n%ABS.length];}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});}
+function monthWorkouts(h){const n=new Date();return h.filter(x=>{const d=new Date(x.date);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;}
+function renderToday(){
+    const s=getState(),type=dayType(),today=todayKey();
+    document.getElementById('streakNum').textContent=s.streak;
+    const ri=rankIdx(s.totalWorkouts),rank=RANKS[ri],next=RANKS[ri+1];
+    document.getElementById('rankName').textContent=rank.icon+' '+rank.name;
+    if(next){const pct=((s.totalWorkouts-rank.min)/(next.min-rank.min))*100;document.getElementById('rankFill').style.width=Math.min(pct,100)+'%';document.getElementById('rankNext').textContent=(next.min-s.totalWorkouts)+' workouts to '+next.name;}
+    else{document.getElementById('rankFill').style.width='100%';document.getElementById('rankNext').textContent='MAX RANK — SERGEANT MAJOR';}
+    if(type==='rest'){document.getElementById('dayTypeLabel').textContent='TODAY';document.getElementById('dayName').textContent='Rest Day';document.getElementById('dayName').className='day-name rest';document.getElementById('todayContent').innerHTML='<div class="rest-card"><div class="rest-emoji">😴</div><div class="rest-title">Recovery Day</div><div class="rest-sub">Muscles grow when you rest.<br>Eat, sleep, hydrate.<br><br>Back tomorrow — Push Day 💪</div></div>';return;}
+    const wk=WORKOUTS[type];
+    document.getElementById('dayTypeLabel').textContent=wk.label;
+    document.getElementById('dayName').textContent=wk.displayName;
+    document.getElementById('dayName').className='day-name '+wk.color;
+    const abs=absFor(s.totalWorkouts),allEx=[...wk.exercises,{...abs,isAbs:true}],total=allEx.length;
+    const ckKey='ck_'+today,ck=s.checkedExercises[ckKey]||{},doneToday=(s.completedDates||[]).includes(today),doneCount=Object.values(ck).filter(Boolean).length;
+    const exHTML=allEx.map((ex,i)=>{const done=ck[i]||doneToday;return '<div class="exercise-item '+(done?'done':'')+'" id="ex_'+i+'" onclick="toggleEx('+i+')"><div class="checkbox"><span class="checkmark">✓</span></div><div class="exercise-info"><div class="exercise-name">'+ex.name+(ex.isAbs?' <span style="font-size:10px;color:var(--text2);font-weight:400">(Abs)</span>':'')+'</div><div class="exercise-detail">'+ex.detail+'</div><div class="exercise-eq">'+ex.eq+'</div></div></div>';}).join('');
+    document.getElementById('todayContent').innerHTML='<p class="section-title">'+(doneToday?'✓ Logged':doneCount+'/'+total+' done')+'</p><div class="exercise-list">'+exHTML+'</div><button class="log-btn" id="logBtn" onclick="logWorkout()" '+(doneToday?'disabled':'')+'>'+(doneToday?'✓ Logged Today':'Log Workout')+'</button>';
+}
+function renderHistory(){const s=getState(),h=[...s.history].reverse().slice(0,60);if(!h.length){document.getElementById('historyList').innerHTML='<div class="empty-state"><div class="empty-icon">📭</div>No workouts logged yet.</div>';return;}document.getElementById('historyList').innerHTML=h.map(e=>'<div class="history-item"><div class="history-dot '+e.type+'"></div><div class="history-info"><div class="history-type">'+e.type.charAt(0).toUpperCase()+e.type.slice(1)+' Day</div><div class="history-date">'+fmtDate(e.date)+'</div></div><div class="history-done">'+e.done+'/'+e.total+'</div></div>').join('');}
+function renderGoals(){const s=getState(),mw=monthWorkouts(s.history),goal=s.monthlyGoal||20,pct=Math.min((mw/goal)*100,100),now=new Date(),daysLeft=new Date(now.getFullYear(),now.getMonth()+1,0).getDate()-now.getDate(),mName=now.toLocaleString('default',{month:'long'}).toUpperCase();document.getElementById('totalWk').textContent=s.totalWorkouts;document.getElementById('bestStr').textContent=s.bestStreak;document.getElementById('monthWk').textContent=mw;document.getElementById('pushWk').textContent=s.pushCount||0;document.getElementById('goalMonthLabel').textContent=mName+' GOAL';document.getElementById('goalCountDisplay').textContent=mw+'/'+goal;document.getElementById('goalSub').textContent=mw>=goal?'🏆 Goal crushed!':daysLeft+' days left';document.getElementById('goalFill').style.width=pct+'%';document.getElementById('goalInput').placeholder=goal;}
+function renderRanks(){const s=getState(),cur=rankIdx(s.totalWorkouts);document.getElementById('rankList').innerHTML=RANKS.map((r,i)=>{let cls='',status='';if(i<cur){cls='achieved';status='✓ Achieved';}if(i===cur){cls='current';status='← You are here';}return '<div class="rank-item '+cls+'"><div class="rank-icon">'+r.icon+'</div><div class="rank-info"><div class="rank-item-name">'+r.name+'</div><div class="rank-req">'+r.min+'+ workouts</div></div><div class="rank-status">'+status+'</div></div>';}).join('');}
+function toggleEx(i){const s=getState(),today=todayKey();if((s.completedDates||[]).includes(today))return;const ckKey='ck_'+today;if(!s.checkedExercises[ckKey])s.checkedExercises[ckKey]={};s.checkedExercises[ckKey][i]=!s.checkedExercises[ckKey][i];saveState(s);renderToday();}
+function logWorkout(){const s=getState(),today=todayKey(),type=dayType();if(type==='rest')return;const wk=WORKOUTS[type],total=wk.exercises.length+1,ckKey='ck_'+today,ck=s.checkedExercises[ckKey]||{},done=Object.values(ck).filter(Boolean).length;const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);const yKey=yesterday.toISOString().split('T')[0];if(s.lastWorkoutDate===yKey)s.streak+=1;else if(s.lastWorkoutDate===today){}else s.streak=1;if(s.streak>s.bestStreak)s.bestStreak=s.streak;s.totalWorkouts+=1;s.lastWorkoutDate=today;if(!s.completedDates)s.completedDates=[];s.completedDates.push(today);if(s.completedDates.length>200)s.completedDates=s.completedDates.slice(-200);if(type==='push')s.pushCount=(s.pushCount||0)+1;if(type==='pull')s.pullCount=(s.pullCount||0)+1;if(type==='legs')s.legsCount=(s.legsCount||0)+1;s.history.push({date:today,type,done,total});if(s.history.length>120)s.history=s.history.slice(-120);saveState(s);document.getElementById('celTitle').textContent=wk.displayName.toUpperCase()+' DAY DONE';document.getElementById('celSub').textContent='🔥 '+s.streak+' day streak · '+s.totalWorkouts+' total workouts';document.getElementById('celebration').classList.add('show');renderToday();}
+function closeCelebration(){document.getElementById('celebration').classList.remove('show');}
+function setGoal(){const s=getState(),v=parseInt(document.getElementById('goalInput').value);if(v&&v>0&&v<=31){s.monthlyGoal=v;saveState(s);renderGoals();}}
+function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.getElementById('nav-'+page).classList.add('active');if(page==='today')renderToday();if(page==='history')renderHistory();if(page==='goals')renderGoals();if(page==='rank')renderRanks();}
+renderToday();
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
